@@ -1,589 +1,657 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تدريبات اختبار MCQ و True/False لمادة التحليل متعدد المتغيرات DA206</title>
+    <title>Interactive Quiz DA206</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
-        .ltr { direction: ltr; text-align: left; }
-        .rtl { direction: rtl; text-align: right; }
-        .btn { transition: all 0.3s ease; }
-        .btn:active { transform: scale(0.95); }
-        .question-card { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        #scrollTopBtn { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 99; border-radius: 50%; width: 50px; height: 50px; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+        body {
+            font-family: 'Inter', 'Cairo', sans-serif;
+            background-color: #f0ebf8;
+        }
+        .form-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+        }
+        .form-header {
+            border-top: 8px solid #6b21a8;
+        }
+        .ar-text {
+            display: none !important;
+            direction: rtl;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+        }
+        .en-text {
+            display: block;
+            direction: ltr;
+            text-align: left;
+        }
+        span.en-text, span.ar-text {
+            display: inline-block;
+            text-align: inherit;
+        }
+        .show-ar .ar-text { display: block !important; }
+        .show-ar span.ar-text { display: inline-block !important; }
+        .show-ar .en-text { display: none !important; }
+        
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        /* Custom Colors for T/F */
+        .tf-selected-true { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #166534 !important; }
+        .tf-selected-false { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+        
+        /* Correct Answers Highlights */
+        .correct-mcq-highlight { background-color: #22c55e !important; color: white !important; border-color: #166534 !important; }
+        .correct-tf-true-highlight { background-color: #22c55e !important; color: white !important; border-color: #166534 !important; }
+        .correct-tf-false-highlight { background-color: #ef4444 !important; color: white !important; border-color: #b91c1c !important; }
     </style>
 </head>
 <body class="text-gray-800">
 
-    <div id="app" class="min-h-screen pb-20">
-        <!-- المحتوى سيتم حقنه هنا بواسطة JavaScript -->
-    </div>
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm p-4 sticky top-0 z-50 flex justify-between items-center">
+        <div class="font-bold text-purple-800 text-lg">DA206 Quiz Tool</div>
+        <button onclick="goHome()" class="text-purple-600 hover:bg-purple-100 px-3 py-1 rounded font-semibold transition flex items-center gap-2">
+            العودة للصفحة الرئيسية
+        </button>
+    </nav>
 
-    <!-- زر العودة للأعلى -->
-    <button id="scrollTopBtn" class="bg-blue-600 text-white shadow-lg hover:bg-blue-700 btn flex items-center justify-center" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-        <i class="fas fa-arrow-up text-xl"></i>
-    </button>
-
-<script>
-// ================= بيانات الأسئلة =================
-
-const originalMCQData = [
-    {
-        type: "group",
-        preambleEn: "It is known that the simple linear regression model for the variable y on the variable x is expressed in the form of the following equation:\ny_i = β_o + β_1 x_i + ε_i\nIn light of this, answer following questions",
-        preambleAr: "من المعروف أن نموذج الانحدار الخطي البسيط للمتغير y على المتغير x يعبر عنه في شكل المعادلة التالية:\ny_i = β_o + β_1 x_i + ε_i\nفي ضوء ذلك، أجب عن الأسئلة التالية:",
-        questions: [
-            {
-                qEn: "The dependent variable in the model is:", qAr: "المتغير التابع في النموذج هو:",
-                optionsEn: ["y", "x", "β_o", "β_1"], optionsAr: ["y", "x", "β_o", "β_1"],
-                ansIndex: 0
-            },
-            {
-                qEn: "The independent variable in the model is:", qAr: "المتغير المستقل في النموذج هو:",
-                optionsEn: ["y", "x", "β_o", "β_1"], optionsAr: ["y", "x", "β_o", "β_1"],
-                ansIndex: 1
-            },
-            {
-                qEn: "β_o is defined in the model as:", qAr: "يُعرّف β_o في النموذج بأنه:",
-                optionsEn: ["The slope of the regression line.", "The intercept from the vertical axis by the regression line.", "Random error, also called residual", "None of the choices."],
-                optionsAr: ["ميل خط الانحدار.", "الجزء المقطوع من المحور الرأسي بواسطة خط الانحدار.", "الخطأ العشوائي، ويسمى أيضاً البواقي.", "لا شيء مما سبق."],
-                ansIndex: 1
-            },
-            {
-                qEn: "β_1 is defined in the model as:", qAr: "يُعرّف β_1 في النموذج بأنه:",
-                optionsEn: ["The slope of the regression line.", "The intercept from the vertical axis by the regression line.", "Random error, also called residual", "None of the choices."],
-                optionsAr: ["ميل خط الانحدار.", "الجزء المقطوع من المحور الرأسي بواسطة خط الانحدار.", "الخطأ العشوائي، ويسمى أيضاً البواقي.", "لا شيء مما سبق."],
-                ansIndex: 0
-            }
-        ]
-    },
-    {
-        type: "group",
-        preambleEn: "If the equation of the regression line estimated by the least square’s method is:\ny = 1500 + 0.9 x\nwhere y consumption, x income, answer the questions",
-        preambleAr: "إذا كانت معادلة خط الانحدار المقدرة بطريقة المربعات الصغرى هي:\ny = 1500 + 0.9 x\nحيث y هو الاستهلاك، و x هو الدخل، أجب عن الأسئلة التالية:",
-        questions: [
-            {
-                qEn: "The consumption of a family with an income of 1000 pounds is equal to:", qAr: "استهلاك أسرة يبلغ دخلها 1000 جنيه يساوي:",
-                optionsEn: ["0.90", "900", "1500", "2400"], optionsAr: ["0.90", "900", "1500", "2400"],
-                ansIndex: 3
-            },
-            {
-                qEn: "The amount of change in y when X changes by one unit is equal to:", qAr: "مقدار التغير في y عندما يتغير X بمقدار وحدة واحدة يساوي:",
-                optionsEn: ["0.90", "900", "1500", "2400"], optionsAr: ["0.90", "900", "1500", "2400"],
-                ansIndex: 0
-            },
-            {
-                qEn: "The consumption of a family with an income of zero pounds is equal to", qAr: "استهلاك أسرة يبلغ دخلها صفر جنيه يساوي:",
-                optionsEn: ["0.90", "900", "1500", "2400"], optionsAr: ["0.90", "900", "1500", "2400"],
-                ansIndex: 2
-            }
-        ]
-    },
-    { type: "single", qEn: "Simple linear correlation aims to:", qAr: "يهدف الارتباط الخطي البسيط إلى:", optionsEn: ["Measuring the rate of change in the dependent variable", "Measuring the degree, strength and direction of the relationship between the two variables", "helps measure prediction", "all of the choices"], optionsAr: ["قياس معدل التغير في المتغير التابع", "قياس درجة وقوة واتجاه العلاقة بين المتغيرين", "يساعد في قياس التنبؤ", "جميع ما سبق"], ansIndex: 1 },
-    { type: "single", qEn: "When the value of the correlation coefficient is -1.8, it is described by the correlation coefficient:", qAr: "عندما تكون قيمة معامل الارتباط -1.8، يوصف بأنه:", optionsEn: ["strong positive", "strong negative", "weak positive", "incorrect"], optionsAr: ["موجب قوي", "سالب قوي", "موجب ضعيف", "غير صحيح (خاطئ)"], ansIndex: 3 },
-    { type: "single", qEn: "The residuals are", qAr: "البواقي (الخطأ العشوائي) هي:", optionsEn: ["The difference between the dependent variable and the independent variable.", "The difference between the actual values of the dependent variable and the estimated values of the dependent variable.", "The estimated values of the dependent variable.", "None of the choices."], optionsAr: ["الفرق بين المتغير التابع والمتغير المستقل.", "الفرق بين القيم الفعلية للمتغير التابع والقيم المقدرة للمتغير التابع.", "القيم المقدرة للمتغير التابع.", "لا شيء مما سبق."], ansIndex: 1 },
-    { type: "single", qEn: "The coefficient of determination is", qAr: "معامل التحديد هو:", optionsEn: ["The square of the coefficient of correlation in simple regression", "Greater than zero and less than 1", "The sum of squares of regression divided by The sum of squares of the total.", "All of the choices."], optionsAr: ["مربع معامل الارتباط في الانحدار البسيط", "أكبر من الصفر وأقل من 1", "مجموع مربعات الانحدار مقسوماً على المجموع الكلي للمربعات.", "جميع ما سبق."], ansIndex: 3 },
-    { type: "single", qEn: "The value of the simple linear correlation coefficient r is determined by the following relationship:", qAr: "تتحدد قيمة معامل الارتباط الخطي البسيط r بالعلاقة التالية:", optionsEn: ["-1 ≤ r ≤ +1", "R ≤ +1", "-1 ≤ r", "0 ≤ r ≤ +1"], optionsAr: ["-1 ≤ r ≤ +1", "R ≤ +1", "-1 ≤ r", "0 ≤ r ≤ +1"], ansIndex: 0 },
-    { type: "single", qEn: "The correlation between x and y is said to be perfect if the value of r is as follows:", qAr: "يقال أن الارتباط بين x و y تام إذا كانت قيمة r كالتالي:", optionsEn: ["r = 0", "r>-1", "r<+1", "r=±1"], optionsAr: ["r = 0", "r>-1", "r<+1", "r=±1"], ansIndex: 3 },
-    { type: "single", qEn: "The Standard error of the estimate of the regression model is", qAr: "الخطأ المعياري لتقدير نموذج الانحدار هو:", optionsEn: ["The square of the Mean square error", "The square root of the Mean square error", "The variance of the error", "None of the choices."], optionsAr: ["مربع متوسط مربع الخطأ (MSE)", "الجذر التربيعي لمتوسط مربع الخطأ (MSE)", "تباين الخطأ", "لا شيء مما سبق."], ansIndex: 1 },
-    { type: "single", qEn: "The T-Test statistic for testing the significant of the slope is", qAr: "إحصاءة اختبار T لاختبار معنوية الميل هي:", optionsEn: ["The estimate of the slope divided by the standard error of the slope", "multiplying the slope by standard error of the slope", "multiplying the slope by variance of the slope", "none of the choices."], optionsAr: ["قيمة الميل المقدرة مقسومة على الخطأ المعياري للميل", "ضرب الميل في الخطأ المعياري للميل", "ضرب الميل في تباين الميل", "لا شيء مما سبق."], ansIndex: 0 },
-    { type: "single", qEn: "T – Test used to test", qAr: "يُستخدم اختبار T لاختبار:", optionsEn: ["the significant of the Model", "the significant of the parameters", "the variance of the error", "none of the choices"], optionsAr: ["معنوية النموذج", "معنوية المعلمات (المتغيرات المستقلة)", "تباين الخطأ", "لا شيء مما سبق"], ansIndex: 1 },
-    { type: "single", qEn: "F – Test used to test", qAr: "يُستخدم اختبار F لاختبار:", optionsEn: ["the significant of the Model", "the significant of the parameters", "the variance of the error", "none of the choices"], optionsAr: ["معنوية النموذج", "معنوية المعلمات (المتغيرات المستقلة)", "تباين الخطأ", "لا شيء مما سبق"], ansIndex: 0 },
-    { type: "single", qEn: "In a simple linear regression model, the y intercept term is", qAr: "في نموذج الانحدار الخطي البسيط، الجزء المقطوع من y (التقاطع) هو:", optionsEn: ["the mean value of y when x equals zero", "The slope", "The standard error of the estimate", "None of the choices"], optionsAr: ["متوسط قيمة y عندما تكون x تساوي صفراً", "الميل", "الخطأ المعياري للتقدير", "لا شيء مما سبق"], ansIndex: 0 },
-    { type: "single", qEn: "A simple linear regression model is", qAr: "نموذج الانحدار الخطي البسيط هو:", optionsEn: ["An equation that describes the straight-line relationship between a dependent variable and an independent variable.", "Contains one independent variable.", "Contain systematic component and random component", "All of the choices."], optionsAr: ["معادلة تصف العلاقة الخطية المستقيمة بين متغير تابع ومتغير مستقل.", "يحتوي على متغير مستقل واحد.", "يحتوي على مكون منتظم ومكون عشوائي", "جميع ما سبق"], ansIndex: 3 },
-    { type: "single", qEn: "The coefficient of determination is", qAr: "معامل التحديد هو:", optionsEn: ["The square of the coefficient of correlation in simple regression", "Greater than zero and less than 1", "The sum of squares of regression divided by The sum of squares of the total.", "All of the choices."], optionsAr: ["مربع معامل الارتباط في الانحدار البسيط", "أكبر من الصفر وأقل من 1", "مجموع مربعات الانحدار مقسوماً على المجموع الكلي للمربعات.", "جميع ما سبق."], ansIndex: 3 },
-    { type: "single", qEn: "T – Test used to test", qAr: "يُستخدم اختبار T لاختبار:", optionsEn: ["The significant of the parameters  in the linear regression", "The significant of the difference between two independent samples.", "The significant of the mean of one sample.", "All of the choices."], optionsAr: ["معنوية المعلمات في الانحدار الخطي", "معنوية الفرق بين عينتين مستقلتين.", "معنوية المتوسط لعينة واحدة.", "جميع ما سبق."], ansIndex: 3 },
-    { type: "single", qEn: "When  Levene’s test is significant we can", qAr: "عندما تكون نتيجة اختبار ليفين (Levene’s test) معنوية (دالة إحصائياً)، يمكننا:", optionsEn: ["Reject H1", "Accept Ho", "You can decide that the data is homogeneous.", "Accept that the data is not homogeneous."], optionsAr: ["رفض الفرضية البديلة H1", "قبول الفرضية العدمية Ho", "أن نقرر أن البيانات متجانسة.", "القبول بأن البيانات غير متجانسة."], ansIndex: 3 },
-    { type: "single", qEn: "The correlation coefficient is used to", qAr: "يُستخدم معامل الارتباط في:", optionsEn: ["measure the degree of correlation between two variables", "Measure the direction of the relation.", "Measure the power of the relation.", "all of the choices"], optionsAr: ["قياس درجة الارتباط بين متغيرين.", "قياس اتجاه العلاقة.", "قياس قوة العلاقة.", "جميع ما سبق."], ansIndex: 3 },
-    { type: "single", qEn: "The null hypothesis of the normality test is", qAr: "الفرضية العدمية لاختبار التوزيع الطبيعي هي:", optionsEn: ["The data is normal.", "The data is not normal.", "The data is skewed.", "The data is quantitative"], optionsAr: ["البيانات تتبع توزيعاً طبيعياً.", "البيانات لا تتبع توزيعاً طبيعياً.", "البيانات ملتوية.", "البيانات كمية."], ansIndex: 0 },
-    { type: "single", qEn: "The two-way ANOVA compares", qAr: "تحليل التباين الثنائي (Two-way ANOVA) يقارن بين:", optionsEn: ["The mean differences between groups that have been split on two independent variables (called factors).", "The differences between variances.", "The correlation between the variables.", "None of the choices."], optionsAr: ["الفروق في المتوسطات بين المجموعات التي تم تقسيمها بناءً على متغيرين مستقلين (يسميان عوامل).", "الفروق بين التباينات.", "الارتباط بين المتغيرات.", "لا شيء مما سبق."], ansIndex: 0 },
-    { type: "single", qEn: "In linear Regression analysis the independent variable may be", qAr: "في تحليل الانحدار الخطي، قد يكون المتغير المستقل:", optionsEn: ["Nominal variable.", "Quantitative Variable.", "Ordinal variable.", "All of the choices."], optionsAr: ["متغيراً اسمياً.", "متغيراً كمياً.", "متغيراً ترتيبياً.", "جميع ما سبق."], ansIndex: 3 },
-    { type: "single", qEn: "The coefficient of determination is", qAr: "معامل التحديد هو:", optionsEn: ["The square of the coefficient of correlation in simple regression", "Greater than zero and less than 1", "The sum of squares of regression divided by the sum of squares of the total.", "All of the choices."], optionsAr: ["مربع معامل الارتباط في الانحدار البسيط.", "أكبر من الصفر وأقل من 1.", "مجموع مربعات الانحدار مقسوماً على المجموع الكلي للمربعات.", "جميع ما سبق."], ansIndex: 3 },
-    { type: "single", qEn: "If the significant value is equal 0.001", qAr: "إذا كانت القيمة الاحتمالية (الدلالة - sig) تساوي 0.001:", optionsEn: ["We reject null hypothesis.", "We does not accept null hypothesis.", "We accept the alternative hypothesis.", "All of the choices."], optionsAr: ["نرفض الفرضية العدمية.", "لا نقبل الفرضية العدمية.", "نقبل الفرضية البديلة.", "جميع ما سبق."], ansIndex: 3 },
-    { type: "single", qEn: "Simple linear correlation aims to:", qAr: "يهدف الارتباط الخطي البسيط إلى:", optionsEn: ["Measuring the rate of change in the dependent variable", "Measuring the degree, strength and direction of the relationship between the two variables", "helps measure prediction", "all of the choices"], optionsAr: ["قياس معدل التغير في المتغير التابع.", "قياس درجة وقوة واتجاه العلاقة بين المتغيرين.", "يساعد في قياس التنبؤ.", "جميع ما سبق."], ansIndex: 1 }
-];
-
-const originalTFData = [
-    { qEn: "One of the measures of dispersion is the arithmetic mean", qAr: "أحد مقاييس التشتت هو الوسط الحسابي", ans: false, noteEn: "The arithmetic mean is a measure of central tendency. Measures of dispersion include variance, standard deviation, and range.", noteAr: "الوسط الحسابي هو مقياس للنزعة المركزية. مقاييس التشتت تشمل التباين، الانحراف المعياري، والمدى." },
-    { qEn: "Standard deviation is a measure of homogeneity", qAr: "الانحراف المعياري هو مقياس للتجانس", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "The Kolomogrove-Semirnove test is used to test for randomization", qAr: "اختبار كولموجوروف-سميرنوف يُستخدم لاختبار العشوائية", ans: false, noteEn: "The Kolmogorov-Smirnov test is used to test normality/distribution, not randomization. Randomization can be tested using the Run test.", noteAr: "اختبار كولموجوروف-سميرنوف يستخدم لاختبار التوزيع الطبيعي، وليس العشوائية. يمكن اختبار العشوائية باستخدام اختبار Run." },
-    { qEn: "The null hypothesis is accepted if the significant value is less than 5%", qAr: "يتم قبول الفرضية العدمية إذا كانت القيمة الاحتمالية (الدلالة) أقل من 5%", ans: false, noteEn: "If Sig. < 0.05, we reject the null hypothesis; if Sig. > 0.05, we do not reject/accept the null hypothesis.", noteAr: "إذا كانت الدلالة (Sig) < 0.05، نرفض الفرضية العدمية؛ وإذا كانت > 0.05، لا نرفضها (نقبلها)." },
-    { qEn: "To compare descriptive statistics for the Current Salary between males and females, we use Explore", qAr: "لمقارنة الإحصاءات الوصفية للراتب الحالي بين الذكور والإناث، نستخدم (Explore)", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "To create descriptive statistics for females only, the female sample must be selected using Select Variable", qAr: "لإنشاء إحصاءات وصفية للإناث فقط، يجب اختيار عينة الإناث باستخدام Select Variable", ans: false, noteEn: "Use Select Cases, not Select Variable.", noteAr: "استخدم تحديد الحالات (Select Cases) وليس تحديد المتغير (Select Variable)." },
-    { qEn: "If the correlation coefficient between any two variables is not significant, then we reject the null hypothesis", qAr: "إذا كان معامل الارتباط بين أي متغيرين غير دال إحصائياً، فإننا نرفض الفرضية العدمية", ans: false, noteEn: "If the correlation is not significant, we do not reject the null hypothesis; there is no statistically significant correlation.", noteAr: "إذا كان الارتباط غير دال، فإننا لا نرفض الفرضية العدمية؛ أي لا يوجد ارتباط ذو دلالة إحصائية." },
-    { qEn: "Frequency tables are used for summarize the quantitative variables", qAr: "تُستخدم جداول التكرارات لتلخيص المتغيرات الكمية", ans: false, noteEn: "Frequency tables are mainly used to summarize categorical variables such as nominal and ordinal variables.", noteAr: "تُستخدم جداول التكرارات بشكل أساسي لتلخيص المتغيرات الفئوية (النوعية) مثل المتغيرات الاسمية والترتيبية." },
-    { qEn: "The correlation coefficient is used to measure the degree of correlation between two variables", qAr: "يُستخدم معامل الارتباط لقياس درجة الارتباط بين متغيرين", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "Spearman's correlation coefficient is parametric coefficient", qAr: "معامل ارتباط سبيرمان هو معامل معلمي", ans: false, noteEn: "Spearman's correlation coefficient is a non-parametric coefficient.", noteAr: "معامل ارتباط سبيرمان هو معامل غير معلمي." },
-    { qEn: "Person's correlation coefficient is parametric coefficient", qAr: "معامل ارتباط بيرسون هو معامل معلمي", ans: true, noteEn: "Correct wording: Pearson's correlation coefficient is a parametric coefficient.", noteAr: "الصياغة الصحيحة: معامل ارتباط بيرسون هو معامل معلمي." },
-    { qEn: "If the sign of the correlation coefficient is negative, that indicates the existence of a positive relationship between the two variables", qAr: "إذا كانت إشارة معامل الارتباط سالبة، فهذا يشير إلى وجود علاقة طردية (موجبة) بين المتغيرين", ans: false, noteEn: "A negative sign indicates an inverse/negative relationship between the two variables.", noteAr: "الإشارة السالبة تشير إلى علاقة عكسية/سالبة بين المتغيرين." },
-    { qEn: "The hypothesis of the correlation coefficient is: null hypothesis: there is no correlation between the two variables; Alternative hypothesis: There is a correlation between the two variables", qAr: "فرضية معامل الارتباط هي: الفرضية العدمية: لا يوجد ارتباط بين المتغيرين؛ الفرضية البديلة: يوجد ارتباط بين المتغيرين", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "Frequency tables are used for demographic variables such as gender, age level, income level, employment level and so on", qAr: "تُستخدم الجداول التكرارية للمتغيرات الديموغرافية مثل الجنس، الفئة العمرية، مستوى الدخل، المستوى الوظيفي وما إلى ذلك", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "The mean is the most common measure of central tendency, especially in analytical studies", qAr: "الوسط الحسابي هو المقياس الأكثر شيوعاً للنزعة المركزية، خاصة في الدراسات التحليلية", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "All quantitative data have a mean. For example ages, weights, heights, incomes, temperature.", qAr: "جميع البيانات الكمية لها وسط حسابي. على سبيل المثال الأعمار، الأوزان، الأطوال، الدخل، ودرجة الحرارة.", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "The Poisson response data is binary data.", qAr: "بيانات الاستجابة لبواسون هي بيانات ثنائية.", ans: false, noteEn: "Poisson response data are count data consisting of non-negative integers.", noteAr: "بيانات الاستجابة لبواسون هي بيانات عدّ تتكون من أعداد صحيحة غير سالبة." },
-    { qEn: "The panel data is time series data", qAr: "بيانات السلاسل المقطعية (Panel Data) هي بيانات سلاسل زمنية", ans: false, noteEn: "Panel data combine cross-sectional data and time series data for the same units over time.", noteAr: "بيانات السلاسل المقطعية تجمع بين البيانات المقطعية وبيانات السلاسل الزمنية لنفس الوحدات عبر الزمن." },
-    { qEn: "If the P-value is greater than 0.05 we reject null hypothesis.", qAr: "إذا كانت قيمة P أكبر من 0.05 فإننا نرفض الفرضية العدمية.", ans: false, noteEn: "If P-value > 0.05, we do not reject/accept the null hypothesis.", noteAr: "إذا كانت قيمة P أكبر من 0.05 فإننا لا نرفض (نقبل) الفرضية العدمية." },
-    { qEn: "To test the means for Two related samples, we can use T-Test", qAr: "لاختبار المتوسطات لعينتين مرتبطتين، يمكننا استخدام اختبار T", ans: true, noteEn: "More specifically, we use the Paired Samples T-Test.", noteAr: "بشكل أكثر تحديداً، نستخدم اختبار T للعينات المزدوجة (المرتبطة)." },
-    { qEn: "The Gamma response data is qualitative data", qAr: "بيانات الاستجابة لجاما هي بيانات نوعية (وصفية)", ans: false, noteEn: "Gamma response data are quantitative continuous positive data.", noteAr: "بيانات الاستجابة لجاما هي بيانات كمية متصلة وموجبة." },
-    { qEn: "Binary data consisting of \"0\" and \"1\", which represent the occurrence of a specific event, meaning \"success\" with the probability of \"p\" and the non-occurrence of that event, meaning \"failure\" with a \"1-p\" probability, and it follows the Bernoulli distribution", qAr: "البيانات الثنائية التي تتكون من '0' و '1'، وتمثل وقوع حدث معين بمعنى 'النجاح' باحتمال 'p' وعدم وقوع ذلك الحدث بمعنى 'الفشل' باحتمال '1-p'، تتبع توزيع برنولي", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "When taking the number of patients in all hospitals in October, then the data is called time series Data", qAr: "عند أخذ عدد المرضى في جميع المستشفيات في شهر أكتوبر، فإن البيانات تسمى بيانات سلسلة زمنية", ans: false, noteEn: "This is cross-sectional data because it is collected at one point in time across several hospitals.", noteAr: "هذه بيانات مقطعية (Cross-Sectional) لأنه تم جمعها في نقطة زمنية واحدة عبر عدة مستشفيات." },
-    { qEn: "when you follow 20 patients for ten weeks the data is called Cross-Sectional Data", qAr: "عندما تتابع 20 مريضاً لمدة عشرة أسابيع، تسمى البيانات بيانات مقطعية", ans: false, noteEn: "This is panel/longitudinal data because the same patients are followed over time.", noteAr: "هذه بيانات طولية أو لوحية (Panel Data) لأنه يتم متابعة نفس المرضى بمرور الوقت." },
-    { qEn: "The data obtained through interviews Is called questionnaires", qAr: "البيانات التي يتم الحصول عليها من خلال المقابلات تسمى استبيانات", ans: false, noteEn: "Data obtained through interviews/questionnaires/field studies are called survey data. A questionnaire is one data collection tool.", noteAr: "البيانات التي يتم الحصول عليها من خلال المقابلات/الاستبيانات تسمى بيانات مسحية. الاستبيان هو مجرد أداة لجمع البيانات." },
-    { qEn: "Data for males and data for females are dependent data.", qAr: "بيانات الذكور وبيانات الإناث هي بيانات تابعة (مرتبطة).", ans: false, noteEn: "Data for males and females are independent data.", noteAr: "بيانات الذكور والإناث هي بيانات مستقلة." },
-    { qEn: "religion (Muslim - Christian - Jewish) data is quantitative", qAr: "بيانات الديانة (مسلم - مسيحي - يهودي) هي بيانات كمية", ans: false, noteEn: "Religion is qualitative nominal data.", noteAr: "الديانة هي بيانات وصفية اسمية." },
-    { qEn: "T-Test used to test difference between Two variances", qAr: "يُستخدم اختبار T لاختبار الفرق بين تباينين", ans: false, noteEn: "T-Test is used to test differences between means. Differences between variances can be tested using Levene's test or F-test.", noteAr: "اختبار T يُستخدم لاختبار الفروق بين المتوسطات. يمكن اختبار الفروق بين التباينات باستخدام اختبار ليفين أو اختبار F." },
-    { qEn: "Levene's Test used to test difference between Two means", qAr: "اختبار ليفين يُستخدم لاختبار الفرق بين متوسطين", ans: false, noteEn: "Levene's Test is used to test equality/homogeneity of variances.", noteAr: "اختبار ليفين يُستخدم لاختبار تجانس أو تساوي التباينات." },
-    { qEn: "From the assumptions of the errors for the linear regression is the relationship between X and Y is linear.", qAr: "من افتراضات الأخطاء في الانحدار الخطي أن العلاقة بين X و Y خطية.", ans: false, noteEn: "Linearity between X and Y is an assumption of the regression model, not specifically an assumption of the errors.", noteAr: "الخطية بين X و Y هي من افتراضات نموذج الانحدار نفسه، وليست تحديداً من افتراضات الأخطاء." },
-    { qEn: "If the P-value is less than 0.05 we reject null hypothesis.", qAr: "إذا كانت قيمة P أقل من 0.05 فإننا نرفض الفرضية العدمية.", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "Panel data is data sets on the same individuals over several periods of times.", qAr: "بيانات Panel هي مجموعات بيانات لنفس الأفراد عبر فترات زمنية متعددة.", ans: true, noteEn: "", noteAr: "" },
-    { qEn: "If the correlation coefficient between any two variables is not significant, then we reject the null hypothesis", qAr: "إذا كان معامل الارتباط بين أي متغيرين غير دال إحصائياً، فإننا نرفض الفرضية العدمية", ans: false, noteEn: "If the correlation coefficient is not significant, we do not reject the null hypothesis.", noteAr: "إذا كان معامل الارتباط غير دال، فإننا لا نرفض الفرضية العدمية." },
-    { qEn: "If the Durbin Watson statistic is close to value 2 then there is positive autocorrelation.", qAr: "إذا كانت إحصاءة دوربين-واتسون قريبة من القيمة 2، فهذا يعني وجود ارتباط ذاتي موجب.", ans: false, noteEn: "If Durbin-Watson is close to 2, there is no autocorrelation. Values close to 0 indicate positive autocorrelation.", noteAr: "إذا كانت قريبة من 2، فلا يوجد ارتباط ذاتي. القيم القريبة من 0 تدل على ارتباط ذاتي موجب." },
-    { qEn: "When taking the number of patients in all hospitals in October, then the data is called time series Data", qAr: "عند أخذ عدد المرضى في جميع المستشفيات في شهر أكتوبر، فإن البيانات تسمى بيانات سلسلة زمنية", ans: false, noteEn: "This is cross-sectional data, not time series data.", noteAr: "هذه بيانات مقطعية، وليست بيانات سلسلة زمنية." },
-    { qEn: "The Stepwise regression method used when there is autocorrelation problem.", qAr: "تُستخدم طريقة الانحدار المتدرج (Stepwise) عندما توجد مشكلة الارتباط الذاتي.", ans: false, noteEn: "Stepwise regression is used for selecting predictors, not for solving autocorrelation.", noteAr: "يُستخدم الانحدار المتدرج لاختيار المتغيرات المتنبئة، وليس لحل مشكلة الارتباط الذاتي." },
-    { qEn: "Person's correlation coefficient is parametric coefficient", qAr: "معامل ارتباط بيرسون هو معامل معلمي", ans: true, noteEn: "Correct wording: Pearson's correlation coefficient is a parametric coefficient.", noteAr: "الصياغة الصحيحة: معامل ارتباط بيرسون هو معامل معلمي." },
-    { qEn: "The Kolomogrove-Semirnove test is used to test The randomization.", qAr: "اختبار كولموجوروف-سميرنوف يُستخدم لاختبار العشوائية.", ans: false, noteEn: "The Kolmogorov-Smirnov test is used to test normality/distribution. Randomization can be tested using the Run test.", noteAr: "اختبار كولموجوروف-سميرنوف يستخدم لاختبار التوزيع الطبيعي. يمكن اختبار العشوائية باستخدام اختبار Run." },
-    { qEn: "For processing missing value we can use mean of nearby points", qAr: "لمعالجة القيم المفقودة، يمكننا استخدام متوسط النقاط القريبة", ans: true, noteEn: "", noteAr: "" }
-];
-
-
-// ================= المتغيرات العامة =================
-let currentQuiz = null; // 'mcq' or 'tf'
-let quizData = [];
-const appDiv = document.getElementById('app');
-
-// ================= دوال المساعدة =================
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-// دالة لتجهيز وعشوائية أسئلة الاختيارات
-function getShuffledMCQData() {
-    let data = JSON.parse(JSON.stringify(originalMCQData));
-    
-    // المجموعتان الأولى والثانية ثابتتان في مكانهما
-    let group1 = data[0];
-    let group2 = data[1];
-    let rest = data.slice(2);
-
-    // عشوائية الخيارات لجميع الأسئلة
-    [group1, group2].forEach(g => {
-        g.questions.forEach(q => shuffleOptions(q));
-    });
-    
-    rest.forEach(q => shuffleOptions(q));
-
-    // عشوائية ترتيب الأسئلة من الثالث للنهاية
-    shuffleArray(rest);
-
-    // تجميع وبناء المصفوفة النهائية وتسوية البيانات
-    let flatData = [];
-    let qNumber = 1;
-    
-    // معالجة المجموعة الأولى
-    flatData.push({ isPreamble: true, qNum: qNumber, textEn: group1.preambleEn, textAr: group1.preambleAr });
-    group1.questions.forEach((q, i) => {
-        // تنسيق الترقيم ليكون 1 - a, 1 - b وهكذا
-        q.displayNum = `${qNumber} - ${String.fromCharCode(97 + i)}`; 
-        q.isTranslated = false;
-        q.userSelected = null;
-        q.showAnswer = false;
-        flatData.push(q);
-    });
-    qNumber++;
-
-    // معالجة المجموعة الثانية
-    flatData.push({ isPreamble: true, qNum: qNumber, textEn: group2.preambleEn, textAr: group2.preambleAr });
-    group2.questions.forEach((q, i) => {
-        q.displayNum = `${qNumber} - ${String.fromCharCode(97 + i)}`;
-        q.isTranslated = false;
-        q.userSelected = null;
-        q.showAnswer = false;
-        flatData.push(q);
-    });
-    qNumber++;
-
-    // معالجة باقي الأسئلة
-    rest.forEach(q => {
-        q.displayNum = qNumber;
-        q.isTranslated = false;
-        q.userSelected = null;
-        q.showAnswer = false;
-        flatData.push(q);
-        qNumber++;
-    });
-
-    return flatData;
-}
-
-function shuffleOptions(qObj) {
-    let opts = qObj.optionsEn.map((optEn, i) => ({
-        en: optEn,
-        ar: qObj.optionsAr[i],
-        isCorrect: (i === qObj.ansIndex)
-    }));
-    shuffleArray(opts);
-    qObj.optionsEn = opts.map(o => o.en);
-    qObj.optionsAr = opts.map(o => o.ar);
-    qObj.ansIndex = opts.findIndex(o => o.isCorrect);
-}
-
-// دالة لتجهيز وعشوائية أسئلة الصح والخطأ
-function getShuffledTFData() {
-    let data = JSON.parse(JSON.stringify(originalTFData));
-    shuffleArray(data);
-    return data.map((q, i) => ({
-        ...q,
-        displayNum: i + 1,
-        isTranslated: false,
-        userSelected: null,
-        showAnswer: false,
-        showNote: false
-    }));
-}
-
-// ================= دوال العرض (Rendering) =================
-
-function renderHome() {
-    currentQuiz = null;
-    appDiv.innerHTML = `
-        <div class="container mx-auto px-4 py-16 text-center">
-            <h1 class="text-3xl md:text-5xl font-bold text-blue-800 mb-12 leading-relaxed">
-                تدريبات اختبار MCQ و True/False <br>
-                <span class="text-gray-600 text-2xl md:text-3xl">لمادة التحليل متعدد المتغيرات DA206</span>
-            </h1>
-            
-            <div class="flex flex-col md:flex-row justify-center gap-8 max-w-4xl mx-auto">
-                <!-- بطاقة MCQ -->
-                <div onclick="startQuiz('mcq')" class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 w-full md:w-1/2 border-t-4 border-blue-500">
-                    <div class="text-blue-500 text-6xl mb-4"><i class="fas fa-list-ul"></i></div>
-                    <h2 class="text-2xl font-bold mb-2">أسئلة الاختيارات</h2>
-                    <p class="text-gray-500">Multiple Choice Questions (MCQ)</p>
-                </div>
-
-                <!-- بطاقة True/False -->
-                <div onclick="startQuiz('tf')" class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 w-full md:w-1/2 border-t-4 border-green-500">
-                    <div class="text-green-500 text-6xl mb-4"><i class="fas fa-check-circle"></i> <i class="fas fa-times-circle"></i></div>
-                    <h2 class="text-2xl font-bold mb-2">أسئلة الصواب والخطأ</h2>
-                    <p class="text-gray-500">True / False Questions</p>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function startQuiz(type) {
-    currentQuiz = type;
-    if (type === 'mcq') {
-        quizData = getShuffledMCQData();
-        renderQuizView('أسئلة الاختيار من متعدد (MCQ)');
-    } else {
-        quizData = getShuffledTFData();
-        renderQuizView('أسئلة الصواب والخطأ (True/False)');
-    }
-    window.scrollTo(0, 0);
-}
-
-function renderQuizView(title) {
-    let html = `
-        <div class="bg-white shadow-md sticky top-0 z-50">
-            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-800">${title}</h2>
-                <button onclick="renderHome()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 btn">
-                    <i class="fas fa-home"></i> الرئيسية
-                </button>
-            </div>
-        </div>
-        <div class="container mx-auto px-4 py-8 max-w-4xl" id="questionsContainer">
-    `;
-
-    quizData.forEach((item, index) => {
-        if (currentQuiz === 'mcq' && item.isPreamble) {
-            html += `
-                <div class="bg-blue-50 border-r-4 border-blue-500 p-6 rounded-lg mb-6 shadow-sm">
-                    <h3 class="font-bold text-lg mb-2 text-blue-800">السؤال الرئيسي رقم ${item.qNum}</h3>
-                    <div class="text-gray-800 font-semibold ltr mb-4 text-left">${item.textEn.replace(/\n/g, '<br>')}</div>
-                    <div class="text-gray-800 font-semibold rtl text-right text-blue-700 border-t border-blue-200 pt-4 mt-2">${item.textAr.replace(/\n/g, '<br>')}</div>
-                </div>
-            `;
-        } else {
-            html += generateQuestionCard(item, index);
-        }
-    });
-
-    html += `
-        </div>
-        <div class="container mx-auto px-4 py-6 max-w-4xl">
-            <div class="bg-white rounded-xl shadow-lg p-6 flex flex-wrap justify-center gap-4">
-                <button onclick="evaluateAnswers()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold btn flex items-center gap-2 text-lg">
-                    <i class="fas fa-clipboard-check"></i> تقييم الإجابات
-                </button>
-                <button onclick="clearAllAnswers()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-bold btn flex items-center gap-2 text-lg">
-                    <i class="fas fa-eraser"></i> مسح كل الإجابات
-                </button>
-                <button onclick="renderHome()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-bold btn flex items-center gap-2 text-lg">
-                    <i class="fas fa-times"></i> إغلاق الاختبار
-                </button>
-            </div>
-        </div>
-        <!-- Modal for evaluation result -->
-        <div id="evalModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[100]">
-            <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center transform scale-95 transition-transform duration-300" id="evalModalContent">
-                <h3 class="text-2xl font-bold mb-4" id="evalTitle">النتيجة</h3>
-                <p class="text-xl mb-6" id="evalScore"></p>
-                <button onclick="closeModal()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 w-full">حسناً</button>
-            </div>
-        </div>
-    `;
-    appDiv.innerHTML = html;
-}
-
-function generateQuestionCard(q, index) {
-    const isTranslated = q.isTranslated;
-    const directionClass = isTranslated ? 'rtl' : 'ltr';
-    const textAlignment = isTranslated ? 'text-right' : 'text-left';
-    
-    let optionsHtml = '';
-    
-    if (currentQuiz === 'mcq') {
-        q.optionsEn.forEach((optEn, optIdx) => {
-            let optText = isTranslated ? q.optionsAr[optIdx] : optEn;
-            let bgColor = "bg-gray-50 hover:bg-gray-100";
-            let borderClass = "border-gray-200";
-            let iconHtml = "";
-
-            if (q.userSelected === optIdx) {
-                bgColor = "bg-blue-100";
-                borderClass = "border-blue-400";
-            }
-            if (q.showAnswer && q.ansIndex === optIdx) {
-                bgColor = "bg-green-200";
-                borderClass = "border-green-500";
-                iconHtml = `<i class="fas fa-check-circle text-green-600 mx-2"></i>`;
-            }
-
-            optionsHtml += `
-                <div onclick="selectOption(${index}, ${optIdx})" class="p-4 px-6 mb-2 border-2 ${borderClass} rounded-lg cursor-pointer transition-colors flex items-center ${bgColor}">
-                    <span class="flex-1 ${textAlignment} ${directionClass} font-medium">${optText}</span>
-                    ${iconHtml}
-                </div>
-            `;
-        });
-    } else {
-        // إعدادات خيارات الصح والخطأ لتكون مشابهة لـ MCQ
-        const tfOptions = [
-            { val: true, textEn: "True", textAr: "صح (True)" },
-            { val: false, textEn: "False", textAr: "خطأ (False)" }
-        ];
-
-        tfOptions.forEach(opt => {
-            let optText = isTranslated ? opt.textAr : opt.textEn;
-            let bgColor = "bg-gray-50 hover:bg-gray-100";
-            let borderClass = "border-gray-200";
-            let iconHtml = "";
-
-            if (q.userSelected === opt.val) {
-                bgColor = "bg-blue-100";
-                borderClass = "border-blue-400";
-            }
-
-            if (q.showAnswer && q.ans === opt.val) {
-                // تلوين الإجابة الصحيحة
-                if (opt.val === true) {
-                    bgColor = "bg-green-200";
-                    borderClass = "border-green-500";
-                    iconHtml = `<i class="fas fa-check-circle text-green-600 mx-2"></i>`;
-                } else {
-                    bgColor = "bg-red-200"; // أحمر إذا كانت False هي الإجابة الصحيحة
-                    borderClass = "border-red-500";
-                    iconHtml = `<i class="fas fa-check-circle text-red-600 mx-2"></i>`;
-                }
-            }
-
-            optionsHtml += `
-                <div onclick="selectTFOption(${index}, ${opt.val})" class="p-4 px-6 mb-2 border-2 ${borderClass} rounded-lg cursor-pointer transition-colors flex items-center ${bgColor}">
-                    <span class="flex-1 ${textAlignment} ${directionClass} font-medium">${optText}</span>
-                    ${iconHtml}
-                </div>
-            `;
-        });
-    }
-
-    let qText = isTranslated ? (q.qAr || "") : (q.qEn || "");
-    
-    // أزرار التحكم للسؤال
-    let showAnswerText = q.showAnswer ? 'إخفاء الإجابة' : 'إظهار الإجابة';
-    let showAnswerIcon = q.showAnswer ? 'fa-eye-slash' : 'fa-lightbulb';
-    let showAnswerColor = q.showAnswer ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700';
-
-    let controlsHtml = `
-        <div class="flex flex-wrap gap-2 mt-6 border-t pt-4 border-gray-100">
-            <button onclick="toggleAnswer(${index})" class="${showAnswerColor} px-4 py-2 rounded-md font-medium text-sm btn flex items-center gap-1">
-                <i class="fas ${showAnswerIcon}"></i> ${showAnswerText}
-            </button>
-            <button onclick="toggleTranslate(${index})" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-md font-medium text-sm btn flex items-center gap-1">
-                <i class="fas fa-language"></i> ترجمة السؤال
-            </button>
-            ${q.userSelected !== null ? `
-                <button onclick="clearSpecificAnswer(${index})" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-md font-medium text-sm btn flex items-center gap-1">
-                    <i class="fas fa-eraser"></i> مسح الإجابة
-                </button>
-            ` : ''}
-        </div>
-    `;
-
-    let noteHtml = '';
-    if (currentQuiz === 'tf' && q.showAnswer && (q.noteEn || q.noteAr)) {
-        let nText = q.showNote ? q.noteAr : q.noteEn;
-        let nDir = q.showNote ? 'rtl' : 'ltr';
-        let nAlign = q.showNote ? 'text-right' : 'text-left';
+    <div class="max-w-4xl mx-auto p-4 mt-6">
         
-        noteHtml = `
-            <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="font-bold text-yellow-800"><i class="fas fa-info-circle"></i> ملاحظة / شرح</span>
-                    <button onclick="toggleNoteTranslate(${index})" class="text-xs bg-yellow-200 hover:bg-yellow-300 text-yellow-800 px-2 py-1 rounded">
-                        <i class="fas fa-exchange-alt"></i> ترجمة الشرح
+        <!-- HOME VIEW -->
+        <div id="home-view" class="block">
+            <div class="form-card form-header text-center py-10">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">تدريبات اختبار MCQ و True/False</h1>
+                <h2 class="text-xl text-purple-700 font-semibold mb-8">لمادة التحليل متعدد المتغيرات DA206</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+                    <button onclick="startQuiz('mcq')" class="group relative bg-white border-2 border-purple-200 hover:border-purple-600 rounded-xl p-8 shadow-sm hover:shadow-md transition-all text-center">
+                        <div class="text-purple-600 text-4xl mb-4">📝</div>
+                        <h3 class="text-2xl font-bold text-gray-800 group-hover:text-purple-700">اسئلة MCQ</h3>
+                        <p class="text-gray-500 mt-2">اختيار من متعدد</p>
+                    </button>
+                    
+                    <button onclick="startQuiz('tf')" class="group relative bg-white border-2 border-purple-200 hover:border-purple-600 rounded-xl p-8 shadow-sm hover:shadow-md transition-all text-center">
+                        <div class="text-purple-600 text-4xl mb-4">✅/❌</div>
+                        <h3 class="text-2xl font-bold text-gray-800 group-hover:text-purple-700">اسئلة True/False</h3>
+                        <p class="text-gray-500 mt-2">صح و خطأ</p>
                     </button>
                 </div>
-                <div class="${nDir} ${nAlign} text-gray-700 font-medium">${nText}</div>
             </div>
-        `;
-    }
-
-    return `
-        <div class="bg-white rounded-xl shadow-md p-6 mb-6 question-card border border-gray-100" id="q-${index}">
-            <div class="flex items-start gap-4 mb-4">
-                <div class="bg-blue-600 text-white font-bold rounded-full h-10 w-10 flex items-center justify-center shrink-0">
-                    ${q.displayNum}
-                </div>
-                <div class="${directionClass} ${textAlignment} flex-1 pt-1 text-lg font-semibold text-gray-800">
-                    ${qText}
-                </div>
-            </div>
-            
-            <div class="pl-4 pr-4 space-y-2 mt-4">
-                ${optionsHtml}
-            </div>
-            
-            ${controlsHtml}
-            ${noteHtml}
         </div>
-    `;
-}
 
-// ================= تفاعلات المستخدم =================
+        <!-- QUIZ CONTAINER -->
+        <div id="quiz-container" class="hidden">
+            <div id="quiz-header" class="form-card form-header mb-6">
+                <h2 id="quiz-title-en" class="text-2xl font-bold text-gray-900 en-text">Quiz</h2>
+                <h2 id="quiz-title-ar" class="text-2xl font-bold text-gray-900 ar-text">الاختبار</h2>
+            </div>
 
-function selectOption(qIndex, optIndex) {
-    if(quizData[qIndex].showAnswer) return; // منع التغيير إذا كانت الإجابة ظاهرة للتقييم
-    quizData[qIndex].userSelected = optIndex;
-    updateQuestionCard(qIndex);
-}
+            <div id="questions-container"></div>
 
-function selectTFOption(qIndex, val) {
-    if(quizData[qIndex].showAnswer) return;
-    quizData[qIndex].userSelected = val;
-    updateQuestionCard(qIndex);
-}
+            <!-- Bottom Controls -->
+            <div class="form-card flex flex-wrap justify-center gap-4 mt-8 bg-gray-50">
+                <button onclick="evaluateAnswers()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded shadow">
+                    <span class="en-text">Evaluate Answers</span>
+                    <span class="ar-text">تقييم الإجابات</span>
+                </button>
+                <button onclick="clearAllAnswers()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded shadow">
+                    <span class="en-text">Clear All Answers</span>
+                    <span class="ar-text">مسح كل الإجابات</span>
+                </button>
+                <button onclick="goHome()" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-6 rounded shadow">
+                    <span class="en-text">Return to Main Page</span>
+                    <span class="ar-text">العودة للصفحة الرئيسية</span>
+                </button>
+                <button onclick="closeQuiz()" class="bg-red-100 hover:bg-red-200 text-red-800 font-bold py-2 px-6 rounded shadow">
+                    <span class="en-text">Close Quiz</span>
+                    <span class="ar-text">إغلاق الاختبار</span>
+                </button>
+            </div>
+            
+            <div class="text-center mt-6 mb-12">
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="text-purple-600 hover:text-purple-800 font-semibold underline">
+                    <span class="en-text">↑ Back to top</span>
+                    <span class="ar-text">↑ العودة لأعلى</span>
+                </button>
+            </div>
+        </div>
 
-function toggleAnswer(qIndex) {
-    quizData[qIndex].showAnswer = !quizData[qIndex].showAnswer;
-    updateQuestionCard(qIndex);
-}
+    </div>
 
-function toggleTranslate(qIndex) {
-    quizData[qIndex].isTranslated = !quizData[qIndex].isTranslated;
-    updateQuestionCard(qIndex);
-}
+    <!-- DATA SCRIPT -->
+    <script>
+        const rawMcqData = [
+            {
+                isContext: true,
+                mainNum: 1,
+                contextEn: "It is known that the simple linear regression model for the variable y on the variable x is expressed in the form of the following equation:\ny_i = β_o + β_1 x_i + ε_i\nIn light of this, answer following questions",
+                contextAr: "من المعروف أن نموذج الانحدار الخطي البسيط للمتغير y على المتغير x يعبر عنه في شكل المعادلة التالية:\ny_i = β_o + β_1 x_i + ε_i\nفي ضوء ذلك، أجب عن الأسئلة التالية",
+                subQuestions: [
+                    { id: 'mcq_1_a', qEn: "The dependent variable in the model is:", qAr: "المتغير التابع في النموذج هو:", options: [
+                        {en: "y", ar: "y", isCorrect: true}, {en: "x", ar: "x", isCorrect: false}, {en: "β_o", ar: "β_o", isCorrect: false}, {en: "β_1", ar: "β_1", isCorrect: false}
+                    ]},
+                    { id: 'mcq_1_b', qEn: "The independent variable in the model is:", qAr: "المتغير المستقل في النموذج هو:", options: [
+                        {en: "y", ar: "y", isCorrect: false}, {en: "x", ar: "x", isCorrect: true}, {en: "β_o", ar: "β_o", isCorrect: false}, {en: "β_1", ar: "β_1", isCorrect: false}
+                    ]},
+                    { id: 'mcq_1_c', qEn: "β_o is defined in the model as:", qAr: "β_o يُعرّف في النموذج على أنه:", options: [
+                        {en: "The slope of the regression line.", ar: "ميل خط الانحدار.", isCorrect: false},
+                        {en: "The intercept from the vertical axis by the regression line.", ar: "الجزء المقطوع من المحور الرأسي بواسطة خط الانحدار.", isCorrect: true},
+                        {en: "Random error, also called residual.", ar: "خطأ عشوائي يسمى أيضاً البواقي.", isCorrect: false},
+                        {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+                    ]},
+                    { id: 'mcq_1_d', qEn: "β_1 is defined in the model as:", qAr: "β_1 يُعرّف في النموذج على أنه:", options: [
+                        {en: "The slope of the regression line.", ar: "ميل خط الانحدار.", isCorrect: true},
+                        {en: "The intercept from the vertical axis by the regression line.", ar: "الجزء المقطوع من المحور الرأسي بواسطة خط الانحدار.", isCorrect: false},
+                        {en: "Random error, also called residual.", ar: "خطأ عشوائي يسمى أيضاً البواقي.", isCorrect: false},
+                        {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+                    ]}
+                ]
+            },
+            {
+                isContext: true,
+                mainNum: 2,
+                contextEn: "If the equation of the regression line estimated by the least square’s method is:\ny = 1500 + 0.9 x\nwhere y consumption, x income, answer the questions",
+                contextAr: "إذا كانت معادلة خط الانحدار المقدرة بطريقة المربعات الصغرى هي:\ny = 1500 + 0.9 x\nحيث y الاستهلاك، x الدخل، أجب عن الأسئلة:",
+                subQuestions: [
+                    { id: 'mcq_2_a', qEn: "The consumption of a family with an income of 1000 pounds is equal to:", qAr: "استهلاك أسرة دخلها 1000 جنيه يساوي:", options: [
+                        {en: "0.90", ar: "0.90", isCorrect: false}, {en: "900", ar: "900", isCorrect: false}, {en: "1500", ar: "1500", isCorrect: false}, {en: "2400", ar: "2400", isCorrect: true}
+                    ]},
+                    { id: 'mcq_2_b', qEn: "The amount of change in y when X changes by one unit is equal to:", qAr: "مقدار التغير في y عندما يتغير X بوحدة واحدة يساوي:", options: [
+                        {en: "0.90", ar: "0.90", isCorrect: true}, {en: "900", ar: "900", isCorrect: false}, {en: "1500", ar: "1500", isCorrect: false}, {en: "2400", ar: "2400", isCorrect: false}
+                    ]},
+                    { id: 'mcq_2_c', qEn: "The consumption of a family with an income of zero pounds is equal to:", qAr: "استهلاك أسرة دخلها صفر جنيه يساوي:", options: [
+                        {en: "0.90", ar: "0.90", isCorrect: false}, {en: "900", ar: "900", isCorrect: false}, {en: "1500", ar: "1500", isCorrect: true}, {en: "2400", ar: "2400", isCorrect: false}
+                    ]}
+                ]
+            },
+            { id: 'mcq_3', qEn: "Simple linear correlation aims to:", qAr: "يهدف الارتباط الخطي البسيط إلى:", options: [
+                {en: "Measuring the rate of change in the dependent variable", ar: "قياس معدل التغير في المتغير التابع", isCorrect: false},
+                {en: "Measuring the degree, strength and direction of the relationship between the two variables", ar: "قياس درجة وقوة واتجاه العلاقة بين المتغيرين", isCorrect: true},
+                {en: "helps measure prediction", ar: "المساعدة في قياس التنبؤ", isCorrect: false},
+                {en: "All of the choices", ar: "كل الخيارات", isCorrect: false}
+            ]},
+            { id: 'mcq_4', qEn: "When the value of the correlation coefficient is -1.8, it is described by the correlation coefficient:", qAr: "عندما تكون قيمة معامل الارتباط -1.8، فإنه يوصف بمعامل الارتباط بأنه:", options: [
+                {en: "strong positive", ar: "قوي موجب", isCorrect: false}, {en: "strong negative", ar: "قوي سالب", isCorrect: false},
+                {en: "weak positive", ar: "ضعيف موجب", isCorrect: false}, {en: "incorrect", ar: "غير صحيح (خاطئ)", isCorrect: true}
+            ]},
+            { id: 'mcq_5', qEn: "The residuals are", qAr: "البواقي هي:", options: [
+                {en: "The difference between the dependent variable and the independent variable.", ar: "الفرق بين المتغير التابع والمتغير المستقل.", isCorrect: false},
+                {en: "The difference between the actual values of the dependent variable and the estimated values of the dependent variable.", ar: "الفرق بين القيم الفعلية للمتغير التابع والقيم المقدرة للمتغير التابع.", isCorrect: true},
+                {en: "The estimated values of the dependent variable.", ar: "القيم المقدرة للمتغير التابع.", isCorrect: false},
+                {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+            ]},
+            { id: 'mcq_6', qEn: "The coefficient of determination is", qAr: "معامل التحديد هو:", options: [
+                {en: "The square of the coefficient of correlation in simple regression", ar: "مربع معامل الارتباط في الانحدار البسيط", isCorrect: false},
+                {en: "Greater than zero and less than 1", ar: "أكبر من صفر وأقل من 1", isCorrect: false},
+                {en: "The sum of squares of regression divided by The sum of squares of the total.", ar: "مجموع مربعات الانحدار مقسوماً على مجموع المربعات الكلي.", isCorrect: false},
+                {en: "All of the choices.", ar: "كل الخيارات.", isCorrect: true}
+            ]},
+            { id: 'mcq_7', qEn: "The value of the simple linear correlation coefficient r is determined by the following relationship:", qAr: "تتحدد قيمة معامل الارتباط الخطي البسيط r بالعلاقة التالية:", options: [
+                {en: "-1 ≤ r ≤ +1", ar: "-1 ≤ r ≤ +1", isCorrect: true}, {en: "R ≤ +1", ar: "R ≤ +1", isCorrect: false},
+                {en: "-1 ≤ r", ar: "-1 ≤ r", isCorrect: false}, {en: "0 ≤ r ≤ +1", ar: "0 ≤ r ≤ +1", isCorrect: false}
+            ]},
+            { id: 'mcq_8', qEn: "The correlation between x and y is said to be perfect if the value of r is as follows:", qAr: "يقال أن الارتباط بين x و y تام إذا كانت قيمة r كالتالي:", options: [
+                {en: "r = 0", ar: "r = 0", isCorrect: false}, {en: "r > -1", ar: "r > -1", isCorrect: false},
+                {en: "r < +1", ar: "r < +1", isCorrect: false}, {en: "r = ±1", ar: "r = ±1", isCorrect: true}
+            ]},
+            { id: 'mcq_9', qEn: "The Standard error of the estimate of the regression model is", qAr: "الخطأ المعياري لتقدير نموذج الانحدار هو:", options: [
+                {en: "The square of the Mean square error", ar: "مربع متوسط مربعات الخطأ", isCorrect: false},
+                {en: "The square root of the Mean square error", ar: "الجذر التربيعي لمتوسط مربعات الخطأ", isCorrect: true},
+                {en: "The variance of the error", ar: "تباين الخطأ", isCorrect: false},
+                {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+            ]},
+            { id: 'mcq_10', qEn: "The T-Test statistic for testing the significant of the slope is", qAr: "إحصائية اختبار T لاختبار معنوية الميل هي:", options: [
+                {en: "The estimate of the slope divided by the standard error of the slope", ar: "تقدير الميل مقسوماً على الخطأ المعياري للميل", isCorrect: true},
+                {en: "multiplying the slope by standard error of the slope", ar: "ضرب الميل في الخطأ المعياري للميل", isCorrect: false},
+                {en: "multiplying the slope by variance of the slope", ar: "ضرب الميل في تباين الميل", isCorrect: false},
+                {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+            ]},
+            { id: 'mcq_11', qEn: "T – Test used to test", qAr: "يُستخدم اختبار T لاختبار:", options: [
+                {en: "the significant of the Model", ar: "معنوية النموذج", isCorrect: false},
+                {en: "the significant of the parameters", ar: "معنوية المعلمات (المتغيرات)", isCorrect: true},
+                {en: "the variance of the error", ar: "تباين الخطأ", isCorrect: false},
+                {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+            ]},
+            { id: 'mcq_12', qEn: "F – Test used to test", qAr: "يُستخدم اختبار F لاختبار:", options: [
+                {en: "the significant of the Model", ar: "معنوية النموذج", isCorrect: true},
+                {en: "the significant of the parameters", ar: "معنوية المعلمات", isCorrect: false},
+                {en: "the variance of the error", ar: "تباين الخطأ", isCorrect: false},
+                {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+            ]},
+            { id: 'mcq_13', qEn: "In a simple linear regression model, the y intercept term is", qAr: "في نموذج الانحدار الخطي البسيط، الجزء المقطوع من y هو:", options: [
+                {en: "the mean value of y when x equals zero", ar: "متوسط قيمة y عندما تساوي x صفراً", isCorrect: true},
+                {en: "The slope", ar: "الميل", isCorrect: false},
+                {en: "The standard error of the estimate", ar: "الخطأ المعياري للتقدير", isCorrect: false},
+                {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+            ]},
+            { id: 'mcq_14', qEn: "A simple linear regression model is", qAr: "نموذج الانحدار الخطي البسيط هو:", options: [
+                {en: "An equation that describes the straight-line relationship between a dependent variable and an independent variable.", ar: "معادلة تصف العلاقة الخطية المستقيمة بين متغير تابع ومتغير مستقل.", isCorrect: false},
+                {en: "Contains one independent variable.", ar: "يحتوي على متغير مستقل واحد.", isCorrect: false},
+                {en: "Contain systematic component and random component", ar: "يحتوي على مكون منهجي ومكون عشوائي.", isCorrect: false},
+                {en: "All of the choices.", ar: "كل الخيارات.", isCorrect: true}
+            ]},
+            { id: 'mcq_15', qEn: "T – Test used to test", qAr: "يُستخدم اختبار T لاختبار:", options: [
+                {en: "The significant of the parameters in the linear regression", ar: "معنوية المعلمات في الانحدار الخطي", isCorrect: false},
+                {en: "The significant of the difference between two independent samples.", ar: "معنوية الفرق بين عينتين مستقلتين.", isCorrect: false},
+                {en: "The significant of the mean of one sample.", ar: "معنوية المتوسط لعينة واحدة.", isCorrect: false},
+                {en: "All of the choices.", ar: "كل الخيارات.", isCorrect: true}
+            ]},
+            { id: 'mcq_16', qEn: "When Levene’s test is significant we can", qAr: "عندما يكون اختبار ليفين (Levene’s test) معنوياً (دالاً إحصائياً) يمكننا:", options: [
+                {en: "Reject H1", ar: "رفض H1", isCorrect: false},
+                {en: "Accept Ho", ar: "قبول Ho", isCorrect: false},
+                {en: "You can decide that the data is homogeneous.", ar: "يمكنك أن تقرر أن البيانات متجانسة.", isCorrect: false},
+                {en: "Accept that the data is not homogeneous.", ar: "القبول بأن البيانات غير متجانسة.", isCorrect: true}
+            ]},
+            { id: 'mcq_17', qEn: "The correlation coefficient is used to", qAr: "يُستخدم معامل الارتباط لـ:", options: [
+                {en: "measure the degree of correlation between two variables", ar: "قياس درجة الارتباط بين متغيرين", isCorrect: false},
+                {en: "Measure the direction of the relation.", ar: "قياس اتجاه العلاقة.", isCorrect: false},
+                {en: "Measure the power of the relation.", ar: "قياس قوة العلاقة.", isCorrect: false},
+                {en: "All of the choices.", ar: "كل الخيارات.", isCorrect: true}
+            ]},
+            { id: 'mcq_18', qEn: "The null hypothesis of the normality test is", qAr: "الفرضية العدمية لاختبار التوزيع الطبيعي هي:", options: [
+                {en: "The data is normal.", ar: "البيانات تتبع التوزيع الطبيعي.", isCorrect: true},
+                {en: "The data is not normal.", ar: "البيانات لا تتبع التوزيع الطبيعي.", isCorrect: false},
+                {en: "The data is skewed.", ar: "البيانات ملتوية.", isCorrect: false},
+                {en: "The data is quantitative.", ar: "البيانات كمية.", isCorrect: false}
+            ]},
+            { id: 'mcq_19', qEn: "The two-way ANOVA compares", qAr: "تحليل التباين الثنائي (Two-way ANOVA) يقارن:", options: [
+                {en: "The mean differences between groups that have been split on two independent variables (called factors).", ar: "الفروق بين المتوسطات للمجموعات التي تم تقسيمها بناءً على متغيرين مستقلين (يسميان العوامل).", isCorrect: true},
+                {en: "The differences between variances.", ar: "الفروق بين التباينات.", isCorrect: false},
+                {en: "The correlation between the variables.", ar: "الارتباط بين المتغيرات.", isCorrect: false},
+                {en: "None of the choices.", ar: "لا شيء من الخيارات.", isCorrect: false}
+            ]},
+            { id: 'mcq_20', qEn: "In linear Regression analysis the independent variable may be", qAr: "في تحليل الانحدار الخطي قد يكون المتغير المستقل:", options: [
+                {en: "Nominal variable.", ar: "متغير اسمي.", isCorrect: false},
+                {en: "Quantitative Variable.", ar: "متغير كمي.", isCorrect: false},
+                {en: "Ordinal variable.", ar: "متغير ترتيبي.", isCorrect: false},
+                {en: "All of the choices.", ar: "كل الخيارات.", isCorrect: true}
+            ]},
+            { id: 'mcq_21', qEn: "If the significant value is equal 0.001", qAr: "إذا كانت القيمة الاحتمالية (significant value) تساوي 0.001", options: [
+                {en: "We reject null hypothesis.", ar: "نرفض الفرضية العدمية.", isCorrect: false},
+                {en: "We does not accept null hypothesis.", ar: "لا نقبل الفرضية العدمية.", isCorrect: false},
+                {en: "We accept the alternative hypothesis.", ar: "نقبل الفرضية البديلة.", isCorrect: false},
+                {en: "All of the choices.", ar: "كل الخيارات.", isCorrect: true}
+            ]},
+            { id: 'mcq_22', qEn: "T – Test used to test", qAr: "يُستخدم اختبار T لاختبار:", options: [
+                {en: "The significant of the parameters in the linear regression", ar: "معنوية المعلمات في الانحدار الخطي", isCorrect: false},
+                {en: "The significant of the difference between two independent samples.", ar: "معنوية الفرق بين عينتين مستقلتين.", isCorrect: false},
+                {en: "The significant of the mean of one sample.", ar: "معنوية المتوسط لعينة واحدة.", isCorrect: false},
+                {en: "All of the choices.", ar: "كل الخيارات.", isCorrect: true}
+            ]}
+        ];
 
-function toggleNoteTranslate(qIndex) {
-    quizData[qIndex].showNote = !quizData[qIndex].showNote;
-    updateQuestionCard(qIndex);
-}
+        const rawTfData = [
+            { id: 'tf_1', qEn: "One of the measures of dispersion is the arithmetic mean", qAr: "أحد مقاييس التشتت هو الوسط الحسابي.", ans: "False", noteEn: "The arithmetic mean is a measure of central tendency. Measures of dispersion include variance, standard deviation, and range.", noteAr: "خطأ. الوسط الحسابي هو مقياس للنزعة المركزية. مقاييس التشتت تشمل التباين، الانحراف المعياري، والمدى." },
+            { id: 'tf_2', qEn: "Standard deviation is a measure of homogeneity", qAr: "الانحراف المعياري هو مقياس للتجانس.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_3', qEn: "The Kolomogrove-Semirnove test is used to test for randomization", qAr: "اختبار كولموجوروف-سميرنوف يُستخدم لاختبار العشوائية.", ans: "False", noteEn: "The Kolmogorov-Smirnov test is used to test normality/distribution, not randomization. Randomization can be tested using the Run test.", noteAr: "خطأ. يُستخدم لاختبار التوزيع الطبيعي، العشوائية تُختبر باختبار Run." },
+            { id: 'tf_4', qEn: "The null hypothesis is accepted if the significant value is less than 5%", qAr: "يتم قبول الفرضية العدمية إذا كانت القيمة الاحتمالية أقل من 5%.", ans: "False", noteEn: "If Sig. < 0.05, we reject the null hypothesis; if Sig. > 0.05, we do not reject/accept the null hypothesis.", noteAr: "خطأ. إذا كانت الدلالة (Sig.) < 0.05 نرفض الفرضية العدمية." },
+            { id: 'tf_5', qEn: "To compare descriptive statistics for the Current Salary between males and females, we use Explore", qAr: "لمقارنة الإحصاءات الوصفية للراتب الحالي بين الذكور والإناث، نستخدم Explore.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_6', qEn: "To create descriptive statistics for females only, the female sample must be selected using Select Variable", qAr: "لإنشاء إحصاءات وصفية للإناث فقط، يجب تحديد عينة الإناث باستخدام Select Variable.", ans: "False", noteEn: "Use Select Cases, not Select Variable.", noteAr: "خطأ. نستخدم Select Cases وليس Select Variable." },
+            { id: 'tf_7', qEn: "If the correlation coefficient between any two variables is not significant, then we reject the null hypothesis", qAr: "إذا كان معامل الارتباط بين أي متغيرين غير دال إحصائياً، فإننا نرفض الفرضية العدمية.", ans: "False", noteEn: "If the correlation is not significant, we do not reject the null hypothesis; there is no statistically significant correlation.", noteAr: "خطأ. إذا كان غير دال، فإننا لا نرفض الفرضية العدمية." },
+            { id: 'tf_8', qEn: "Frequency tables are used for summarize the quantitative variables", qAr: "جداول التكرار تُستخدم لتلخيص المتغيرات الكمية.", ans: "False", noteEn: "Frequency tables are mainly used to summarize categorical variables such as nominal and ordinal variables.", noteAr: "خطأ. تُستخدم جداول التكرار بشكل أساسي لتلخيص المتغيرات الفئوية (الاسمية والترتيبية)." },
+            { id: 'tf_9', qEn: "The correlation coefficient is used to measure the degree of correlation between two variables", qAr: "يُستخدم معامل الارتباط لقياس درجة الارتباط بين متغيرين.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_10', qEn: "Spearman's correlation coefficient is parametric coefficient", qAr: "معامل ارتباط سبيرمان هو معامل مَعلَمي (بارامتري).", ans: "False", noteEn: "Spearman's correlation coefficient is a non-parametric coefficient.", noteAr: "خطأ. سبيرمان هو معامل غير مَعلَمي (لابارامتري)." },
+            { id: 'tf_11', qEn: "Person's correlation coefficient is parametric coefficient", qAr: "معامل ارتباط بيرسون هو معامل مَعلَمي.", ans: "True", noteEn: "Correct wording: Pearson's correlation coefficient is a parametric coefficient.", noteAr: "" },
+            { id: 'tf_12', qEn: "If the sign of the correlation coefficient is negative, that indicates the existence of a positive relationship between the two variables", qAr: "إذا كانت إشارة معامل الارتباط سالبة، فهذا يشير إلى وجود علاقة موجبة بين المتغيرين.", ans: "False", noteEn: "A negative sign indicates an inverse/negative relationship between the two variables.", noteAr: "خطأ. الإشارة السالبة تدل على علاقة عكسية/سالبة." },
+            { id: 'tf_13', qEn: "The hypothesis of the correlation coefficient is: null hypothesis: there is no correlation between the two variables; Alternative hypothesis: There is a correlation between the two variables", qAr: "فرضية معامل الارتباط هي: الفرضية العدمية: لا يوجد ارتباط بين المتغيرين؛ الفرضية البديلة: يوجد ارتباط بين المتغيرين.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_14', qEn: "Frequency tables are used for demographic variables such as gender, age level, income level, employment level and so on", qAr: "تُستخدم جداول التكرار للمتغيرات الديموغرافية مثل الجنس، مستوى العمر، مستوى الدخل، مستوى التوظيف، وما إلى ذلك.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_15', qEn: "The mean is the most common measure of central tendency, especially in analytical studies", qAr: "المتوسط هو مقياس النزعة المركزية الأكثر شيوعاً، خاصة في الدراسات التحليلية.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_16', qEn: "All quantitative data have a mean. For example ages, weights, heights, incomes, temperature.", qAr: "جميع البيانات الكمية لها متوسط. على سبيل المثال الأعمار، الأوزان، الأطوال، الدخول، درجات الحرارة.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_17', qEn: "The Poisson response data is binary data.", qAr: "بيانات استجابة بواسون هي بيانات ثنائية.", ans: "False", noteEn: "Poisson response data are count data consisting of non-negative integers.", noteAr: "خطأ. بيانات بواسون هي بيانات تعداد تتكون من أعداد صحيحة غير سالبة." },
+            { id: 'tf_18', qEn: "The panel data is time series data", qAr: "بيانات اللوحة (Panel data) هي بيانات سلاسل زمنية.", ans: "False", noteEn: "Panel data combine cross-sectional data and time series data for the same units over time.", noteAr: "خطأ. بيانات اللوحة تجمع بين البيانات المقطعية والسلاسل الزمنية لنفس الوحدات بمرور الوقت." },
+            { id: 'tf_19', qEn: "If the P-value is greater than 0.05 we reject null hypothesis.", qAr: "إذا كانت القيمة الاحتمالية P-value أكبر من 0.05 نرفض الفرضية العدمية.", ans: "False", noteEn: "If P-value > 0.05, we do not reject/accept the null hypothesis.", noteAr: "خطأ. إذا كانت P-value > 0.05 فإننا لا نرفض الفرضية العدمية." },
+            { id: 'tf_20', qEn: "To test the means for Two related samples, we can use T-Test", qAr: "لاختبار المتوسطات لعينتين مرتبطتين، يمكننا استخدام اختبار T.", ans: "True", noteEn: "More specifically, we use the Paired Samples T-Test.", noteAr: "تحديداً نستخدم اختبار T للعينات المترابطة (Paired Samples T-Test)." },
+            { id: 'tf_21', qEn: "The Gamma response data is qualitative data", qAr: "بيانات استجابة جاما هي بيانات نوعية (كيفية).", ans: "False", noteEn: "Gamma response data are quantitative continuous positive data.", noteAr: "خطأ. بيانات جاما هي بيانات كمية متصلة موجبة." },
+            { id: 'tf_22', qEn: "Binary data consisting of \"0\" and \"1\", which represent the occurrence of a specific event, meaning \"success\" with the probability of \"p\" and the non-occurrence of that event, meaning \"failure\" with a \"1-p\" probability, and it follows the Bernoulli distribution", qAr: "البيانات الثنائية التي تتكون من \"0\" و \"1\"، والتي تمثل حدوث حدث معين بمعنى \"النجاح\" باحتمال \"p\" وعدم حدوثه بمعنى \"الفشل\" باحتمال \"1-p\" تتبع توزيع برنولي.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_23', qEn: "When taking the number of patients in all hospitals in October, then the data is called time series Data", qAr: "عند أخذ عدد المرضى في جميع المستشفيات في شهر أكتوبر، فإن البيانات تسمى بيانات سلاسل زمنية.", ans: "False", noteEn: "This is cross-sectional data because it is collected at one point in time across several hospitals.", noteAr: "خطأ. هذه بيانات مقطعية لأنها جُمعت في نقطة زمنية واحدة عبر عدة مستشفيات." },
+            { id: 'tf_24', qEn: "When you follow 20 patients for ten weeks the data is called Cross-Sectional Data", qAr: "عندما تتابع 20 مريضاً لمدة عشرة أسابيع، تسمى البيانات بيانات مقطعية.", ans: "False", noteEn: "This is panel/longitudinal data because the same patients are followed over time.", noteAr: "خطأ. هذه بيانات طولية (Panel) لأنه يتم تتبع نفس المرضى بمرور الوقت." },
+            { id: 'tf_25', qEn: "The data obtained through interviews Is called questionnaires", qAr: "البيانات التي يتم الحصول عليها من خلال المقابلات تسمى استبيانات.", ans: "True", noteEn: "True. Data obtained through interviews is part of Survey Data, which includes data collected via interviews, questionnaires, field studies, and others.", noteAr: "صح. لأن البيانات التي يتم الحصول عليها من خلال interviews تدخل ضمن Survey Data، حيث أن بيانات المسوح هي البيانات التي تُجمع من خلال المقابلات والاستبيانات والدراسات الميدانية وغيرها." },
+            { id: 'tf_26', qEn: "Data for males and data for females are dependent data.", qAr: "بيانات الذكور وبيانات الإناث هي بيانات تابعة (مرتبطة).", ans: "False", noteEn: "Data for males and females are independent data.", noteAr: "خطأ. بيانات الذكور والإناث هي بيانات مستقلة." },
+            { id: 'tf_27', qEn: "Religion (Muslim - Christian - Jewish) data is quantitative", qAr: "بيانات الديانة (مسلم - مسيحي - يهودي) هي كمية.", ans: "False", noteEn: "Religion is qualitative nominal data.", noteAr: "خطأ. الديانة هي بيانات نوعية اسمية." },
+            { id: 'tf_28', qEn: "T-Test used to test difference between Two variances", qAr: "يُستخدم اختبار T لاختبار الفرق بين تباينين.", ans: "False", noteEn: "T-Test is used to test differences between means. Differences between variances can be tested using Levene's test or F-test.", noteAr: "خطأ. اختبار T لاختبار الفروق بين المتوسطات. التباينات تُختبر بواسطة ليفين أو F." },
+            { id: 'tf_29', qEn: "Levene's Test used to test difference between Two means", qAr: "يُستخدم اختبار ليفين لاختبار الفرق بين متوسطين.", ans: "False", noteEn: "Levene's Test is used to test equality/homogeneity of variances.", noteAr: "خطأ. اختبار ليفين يستخدم لاختبار تجانس التباينات." },
+            { id: 'tf_30', qEn: "From the assumptions of the errors for the linear regression is the relationship between X and Y is linear.", qAr: "من افتراضات الأخطاء في الانحدار الخطي أن العلاقة بين X و Y خطية.", ans: "False", noteEn: "Linearity between X and Y is an assumption of the regression model, not specifically an assumption of the errors.", noteAr: "خطأ. الخطية بين X و Y هي افتراض لنموذج الانحدار ككل وليست من افتراضات الأخطاء تحديداً." },
+            { id: 'tf_31', qEn: "If the P-value is less than 0.05 we reject null hypothesis.", qAr: "إذا كانت القيمة الاحتمالية P-value أقل من 0.05 نرفض الفرضية العدمية.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_32', qEn: "Panel data is data sets on the same individuals over several periods of times.", qAr: "بيانات اللوحة (Panel data) هي مجموعات بيانات لنفس الأفراد على مدى عدة فترات زمنية.", ans: "True", noteEn: "", noteAr: "" },
+            { id: 'tf_33', qEn: "If the Durbin Watson statistic is close to value 2 then there is positive autocorrelation.", qAr: "إذا كانت إحصائية ديربين-واتسون قريبة من القيمة 2 فهناك ارتباط ذاتي موجب.", ans: "False", noteEn: "If Durbin-Watson is close to 2, there is no autocorrelation. Values close to 0 indicate positive autocorrelation.", noteAr: "خطأ. إذا كانت قريبة من 2 فلا يوجد ارتباط ذاتي. اقترابها من الصفر يدل على ارتباط موجب." },
+            { id: 'tf_34', qEn: "The Stepwise regression method used when there is autocorrelation problem.", qAr: "طريقة الانحدار المتدرج (Stepwise) تُستخدم عند وجود مشكلة الارتباط الذاتي.", ans: "False", noteEn: "Stepwise regression is used for selecting predictors, not for solving autocorrelation.", noteAr: "خطأ. تُستخدم لاختيار المتغيرات المتوقعة، وليس لحل مشكلة الارتباط الذاتي." },
+            { id: 'tf_35', qEn: "The Kolomogrove-Semirnove test is used to test The randomization.", qAr: "اختبار كولموجوروف-سميرنوف يُستخدم لاختبار العشوائية.", ans: "False", noteEn: "The Kolmogorov-Smirnov test is used to test normality/distribution. Randomization can be tested using the Run test.", noteAr: "خطأ. يُستخدم لاختبار التوزيع الطبيعي، العشوائية تُختبر باختبار Run." },
+            { id: 'tf_36', qEn: "For processing missing value we can use mean of nearby points", qAr: "لمعالجة القيم المفقودة يمكننا استخدام متوسط النقاط القريبة.", ans: "True", noteEn: "", noteAr: "" }
+        ];
 
-function clearSpecificAnswer(qIndex) {
-    quizData[qIndex].userSelected = null;
-    updateQuestionCard(qIndex);
-}
+        let currentQuizType = '';
+        let activeQuestions = [];
+        let userAnswers = {};
 
-function updateQuestionCard(qIndex) {
-    const qDiv = document.getElementById(`q-${qIndex}`);
-    if (qDiv) {
-        qDiv.outerHTML = generateQuestionCard(quizData[qIndex], qIndex);
-    }
-}
-
-function clearAllAnswers() {
-    quizData.forEach(q => {
-        if (!q.isPreamble) {
-            q.userSelected = null;
-            q.showAnswer = false;
+        function shuffleArray(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
         }
-    });
-    renderQuizView(currentQuiz === 'mcq' ? 'أسئلة الاختيار من متعدد (MCQ)' : 'أسئلة الصواب والخطأ (True/False)');
-}
 
-function evaluateAnswers() {
-    let score = 0;
-    let total = 0;
-    
-    quizData.forEach((q, index) => {
-        if (q.isPreamble) return;
-        total++;
-        q.showAnswer = true; // كشف الإجابات بعد التقييم
-        if (currentQuiz === 'mcq') {
-            if (q.userSelected === q.ansIndex) score++;
-        } else {
-            if (q.userSelected === q.ans) score++;
+        function goHome() {
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('quiz-container').classList.add('hidden');
+            activeQuestions = [];
+            userAnswers = {};
         }
-    });
 
-    renderQuizView(currentQuiz === 'mcq' ? 'أسئلة الاختيار من متعدد (MCQ)' : 'أسئلة الصواب والخطأ (True/False)');
-    
-    // Show Modal
-    const modal = document.getElementById('evalModal');
-    const scoreText = document.getElementById('evalScore');
-    const modalContent = document.getElementById('evalModalContent');
-    const percentage = Math.round((score / total) * 100);
-    
-    scoreText.innerHTML = `لقد أجبت بشكل صحيح على <br><strong class="text-3xl text-blue-600">${score}</strong> من <strong class="text-xl">${total}</strong> <br><br> النسبة: %${percentage}`;
-    
-    if(percentage >= 85) { modalContent.classList.add('border-t-8', 'border-green-500'); }
-    else if(percentage >= 50) { modalContent.classList.add('border-t-8', 'border-yellow-500'); }
-    else { modalContent.classList.add('border-t-8', 'border-red-500'); }
+        function closeQuiz() {
+            alert("تم إغلاق الاختبار والعودة للصفحة الرئيسية.");
+            goHome();
+        }
 
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modalContent.classList.remove('scale-95');
-        modalContent.classList.add('scale-100');
-    }, 10);
-}
+        function startQuiz(type) {
+            currentQuizType = type;
+            userAnswers = {};
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            
+            document.getElementById('quiz-title-en').innerText = type === 'mcq' ? "MCQ Quiz" : "True/False Quiz";
+            document.getElementById('quiz-title-ar').innerText = type === 'mcq' ? "اختبار اختيار من متعدد (MCQ)" : "اختبار الصح والخطأ (True/False)";
+            
+            prepareData(type);
+            renderQuestions();
+        }
 
-function closeModal() {
-    const modal = document.getElementById('evalModal');
-    modal.classList.add('hidden');
-}
+        function prepareData(type) {
+            if (type === 'mcq') {
+                // Keep Context 1 and Context 2 at the top
+                let ctx1 = JSON.parse(JSON.stringify(rawMcqData[0]));
+                let ctx2 = JSON.parse(JSON.stringify(rawMcqData[1]));
+                let standardQs = JSON.parse(JSON.stringify(rawMcqData.slice(2)));
+                
+                // Shuffle options for all
+                ctx1.subQuestions.forEach(q => q.options = shuffleArray(q.options));
+                ctx2.subQuestions.forEach(q => q.options = shuffleArray(q.options));
+                standardQs.forEach(q => q.options = shuffleArray(q.options));
+                
+                // Shuffle standard questions
+                standardQs = shuffleArray(standardQs);
+                
+                activeQuestions = [ctx1, ctx2, ...standardQs];
+            } else {
+                let tfs = JSON.parse(JSON.stringify(rawTfData));
+                activeQuestions = shuffleArray(tfs);
+            }
+        }
 
-// التمرير للأعلى
-window.onscroll = function() {
-    const btn = document.getElementById("scrollTopBtn");
-    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-        btn.style.display = "flex";
-    } else {
-        btn.style.display = "none";
-    }
-};
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
 
-// بدء التطبيق
-renderHome();
+            if (currentQuizType === 'mcq') {
+                let globalNum = 1;
+                activeQuestions.forEach((item) => {
+                    if (item.isContext) {
+                        let html = `
+                        <div class="form-card" id="context-${item.mainNum}">
+                            <div class="bg-gray-100 p-4 rounded-md mb-6 border-l-4 border-purple-500">
+                                <h3 class="font-bold text-lg mb-2 en-text">Question ${globalNum}</h3>
+                                <h3 class="font-bold text-lg mb-2 ar-text">السؤال ${globalNum}</h3>
+                                <p class="text-md whitespace-pre-wrap en-text">${item.contextEn}</p>
+                                <p class="text-md whitespace-pre-wrap ar-text">${item.contextAr}</p>
+                                <button onclick="toggleLang('context-${item.mainNum}')" class="mt-3 text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-gray-700">ترجمة / Translate</button>
+                            </div>
+                        `;
+                        
+                        item.subQuestions.forEach((sub, subIdx) => {
+                            let label = `${globalNum} - ${String.fromCharCode(97 + subIdx)}`;
+                            html += generateMCQHTML(sub, label);
+                        });
+                        html += `</div>`;
+                        container.innerHTML += html;
+                        globalNum++;
+                    } else {
+                        container.innerHTML += `<div class="form-card">${generateMCQHTML(item, globalNum)}</div>`;
+                        globalNum++;
+                    }
+                });
+            } else {
+                activeQuestions.forEach((item, idx) => {
+                    container.innerHTML += `<div class="form-card">${generateTFHTML(item, idx + 1)}</div>`;
+                });
+            }
+        }
 
-</script>
+        function generateMCQHTML(qData, numLabel) {
+            let optionsHtml = '';
+            qData.options.forEach((opt, idx) => {
+                optionsHtml += `
+                    <label class="block mb-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 option-btn option-${qData.id}">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="${qData.id}" value="${idx}" onchange="handleSelect('${qData.id}', ${idx})" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                            <div class="flex-1">
+                                <span class="en-text">${opt.en}</span>
+                                <span class="ar-text">${opt.ar}</span>
+                            </div>
+                        </div>
+                    </label>
+                `;
+            });
+
+            return `
+                <div id="qbox-${qData.id}" class="mb-8 pl-2 border-l-2 border-transparent">
+                    <div class="mb-4">
+                        <span class="font-bold text-lg mr-2">${numLabel}.</span>
+                        <span class="text-lg font-medium en-text">${qData.qEn}</span>
+                        <span class="text-lg font-medium ar-text">${qData.qAr}</span>
+                    </div>
+                    <div class="options-container">
+                        ${optionsHtml}
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2 items-center">
+                        <button onclick="toggleAnswer('${qData.id}', 'mcq')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded font-semibold text-sm transition">
+                            <span class="en-text">✓ Show Answer</span><span class="ar-text">✓ إظهار الإجابة</span>
+                        </button>
+                        <button onclick="toggleLang('qbox-${qData.id}')" class="bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 rounded font-semibold text-sm transition">
+                            🌐 ترجمة
+                        </button>
+                        <button id="clear-btn-${qData.id}" onclick="clearAnswer('${qData.id}')" class="hidden bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded font-semibold text-sm transition">
+                            <span class="en-text">🗑️ Clear</span><span class="ar-text">🗑️ مسح الإجابة</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateTFHTML(qData, numLabel) {
+            return `
+                <div id="qbox-${qData.id}" class="mb-4">
+                    <div class="mb-4">
+                        <span class="font-bold text-lg mr-2">${numLabel}.</span>
+                        <span class="text-lg font-medium en-text">${qData.qEn}</span>
+                        <span class="text-lg font-medium ar-text">${qData.qAr}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <button id="btn-${qData.id}-True" onclick="handleTFSelect('${qData.id}', 'True')" class="border-2 rounded-lg p-4 font-bold text-lg hover:bg-gray-50 transition tf-option-btn-${qData.id}">
+                            True
+                        </button>
+                        <button id="btn-${qData.id}-False" onclick="handleTFSelect('${qData.id}', 'False')" class="border-2 rounded-lg p-4 font-bold text-lg hover:bg-gray-50 transition tf-option-btn-${qData.id}">
+                            False
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <button onclick="toggleAnswer('${qData.id}', 'tf')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded font-semibold text-sm transition">
+                            <span class="en-text">✓ Show Answer</span><span class="ar-text">✓ إظهار الإجابة</span>
+                        </button>
+                        <button onclick="toggleLang('qbox-${qData.id}')" class="bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 rounded font-semibold text-sm transition">
+                            🌐 ترجمة
+                        </button>
+                        <button id="clear-btn-${qData.id}" onclick="clearAnswer('${qData.id}')" class="hidden bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded font-semibold text-sm transition">
+                            <span class="en-text">🗑️ Clear</span><span class="ar-text">🗑️ مسح الإجابة</span>
+                        </button>
+                        
+                        <button id="explain-btn-${qData.id}" onclick="toggleExplain('${qData.id}')" class="hidden bg-yellow-100 text-yellow-800 hover:bg-yellow-200 px-4 py-2 rounded font-semibold text-sm transition">
+                            <span class="en-text">💡 Explain</span><span class="ar-text">💡 الشرح والترجمة</span>
+                        </button>
+                    </div>
+                    <div id="explain-box-${qData.id}" class="hidden mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r text-sm">
+                        <p class="en-text text-gray-800"><strong>Note:</strong> ${qData.noteEn || "No additional explanation."}</p>
+                        <p class="ar-text text-gray-800"><strong>ملاحظة:</strong> ${qData.noteAr || "لا يوجد شرح إضافي."}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleLang(elementId) {
+            document.getElementById(elementId).classList.toggle('show-ar');
+        }
+
+        function toggleExplain(qId) {
+            const box = document.getElementById(`explain-box-${qId}`);
+            box.classList.toggle('hidden');
+        }
+
+        function handleSelect(qId, optionIdx) {
+            userAnswers[qId] = optionIdx;
+            document.getElementById(`clear-btn-${qId}`).classList.remove('hidden');
+        }
+
+        function handleTFSelect(qId, val) {
+            userAnswers[qId] = val;
+            document.getElementById(`clear-btn-${qId}`).classList.remove('hidden');
+            
+            // Reset styles
+            document.querySelectorAll(`.tf-option-btn-${qId}`).forEach(el => {
+                el.classList.remove('tf-selected-true', 'tf-selected-false');
+            });
+            
+            // Apply selection styling based on prompt: True -> light green, False -> red
+            let btn = document.getElementById(`btn-${qId}-${val}`);
+            if(val === 'True') {
+                btn.classList.add('tf-selected-true');
+            } else {
+                btn.classList.add('tf-selected-false');
+            }
+        }
+
+        function clearAnswer(qId) {
+            delete userAnswers[qId];
+            document.getElementById(`clear-btn-${qId}`).classList.add('hidden');
+            if (currentQuizType === 'mcq') {
+                let radios = document.getElementsByName(qId);
+                radios.forEach(r => r.checked = false);
+            } else {
+                document.querySelectorAll(`.tf-option-btn-${qId}`).forEach(el => {
+                    el.classList.remove('tf-selected-true', 'tf-selected-false');
+                });
+            }
+        }
+
+        function clearAllAnswers() {
+            userAnswers = {};
+            document.querySelectorAll('button[id^="clear-btn-"]').forEach(btn => btn.classList.add('hidden'));
+            if (currentQuizType === 'mcq') {
+                document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+                document.querySelectorAll('.correct-mcq-highlight').forEach(el => el.classList.remove('correct-mcq-highlight'));
+            } else {
+                document.querySelectorAll('button[id^="btn-"]').forEach(btn => {
+                    btn.classList.remove('tf-selected-true', 'tf-selected-false', 'correct-tf-true-highlight', 'correct-tf-false-highlight');
+                });
+                document.querySelectorAll('button[id^="explain-btn-"]').forEach(btn => btn.classList.add('hidden'));
+                document.querySelectorAll('div[id^="explain-box-"]').forEach(box => box.classList.add('hidden'));
+            }
+            alert("تم مسح جميع الإجابات.");
+        }
+
+        function getQuestionData(qId) {
+            if (currentQuizType === 'mcq') {
+                for (let item of activeQuestions) {
+                    if (item.isContext) {
+                        let sub = item.subQuestions.find(s => s.id === qId);
+                        if (sub) return sub;
+                    } else if (item.id === qId) {
+                        return item;
+                    }
+                }
+            } else {
+                return activeQuestions.find(q => q.id === qId);
+            }
+            return null;
+        }
+
+        function toggleAnswer(qId, type) {
+            const qData = getQuestionData(qId);
+            if (!qData) return;
+
+            if (type === 'mcq') {
+                const labels = document.querySelectorAll(`.option-${qId}`);
+                let isShowing = false;
+                
+                labels.forEach((label, idx) => {
+                    if (qData.options[idx].isCorrect) {
+                        if (label.classList.contains('correct-mcq-highlight')) {
+                            label.classList.remove('correct-mcq-highlight');
+                        } else {
+                            label.classList.add('correct-mcq-highlight');
+                            isShowing = true;
+                        }
+                    }
+                });
+                
+            } else if (type === 'tf') {
+                const trueBtn = document.getElementById(`btn-${qId}-True`);
+                const falseBtn = document.getElementById(`btn-${qId}-False`);
+                const explainBtn = document.getElementById(`explain-btn-${qId}`);
+                const correctAns = qData.ans;
+                
+                let isShowing = trueBtn.classList.contains('correct-tf-true-highlight') || falseBtn.classList.contains('correct-tf-false-highlight');
+
+                if (isShowing) {
+                    trueBtn.classList.remove('correct-tf-true-highlight');
+                    falseBtn.classList.remove('correct-tf-false-highlight');
+                    explainBtn.classList.add('hidden');
+                    document.getElementById(`explain-box-${qId}`).classList.add('hidden');
+                } else {
+                    if (correctAns === 'True') {
+                        trueBtn.classList.add('correct-tf-true-highlight');
+                    } else {
+                        falseBtn.classList.add('correct-tf-false-highlight');
+                    }
+                    explainBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        function evaluateAnswers() {
+            let score = 0;
+            let total = 0;
+
+            if (currentQuizType === 'mcq') {
+                activeQuestions.forEach(item => {
+                    if (item.isContext) {
+                        item.subQuestions.forEach(sub => {
+                            total++;
+                            if (userAnswers[sub.id] !== undefined && sub.options[userAnswers[sub.id]].isCorrect) score++;
+                        });
+                    } else {
+                        total++;
+                        if (userAnswers[item.id] !== undefined && item.options[userAnswers[item.id]].isCorrect) score++;
+                    }
+                });
+            } else {
+                activeQuestions.forEach(item => {
+                    total++;
+                    if (userAnswers[item.id] === item.ans) score++;
+                });
+            }
+
+            alert(`Your Score / نتيجتك: ${score} / ${total}\n${Math.round((score/total)*100)}%`);
+        }
+        
+    </script>
 </body>
 </html>
